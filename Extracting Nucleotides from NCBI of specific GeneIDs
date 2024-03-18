@@ -1,0 +1,35 @@
+from Bio import Entrez, SeqIO
+import textwrap 
+Entrez.email = "eeshan.nair@gmail.com" 
+
+def fetch_and_print_sequences_drosophila(gene_ids):
+    for gene_id in gene_ids:
+        search_query = f"{gene_id}[Gene ID] AND Drosophila melanogaster[Organism]"
+        search_handle = Entrez.esearch(db="nucleotide", term=search_query, retmax=10)
+        search_results = Entrez.read(search_handle)
+        search_handle.close()
+
+        if search_results["IdList"]:
+            sequence_id = search_results["IdList"][0]  # Take the first result
+            try:
+                handle = Entrez.efetch(db="nucleotide", id=sequence_id, rettype="fasta", retmode="text")
+                record = SeqIO.read(handle, "fasta")
+                handle.close()
+                # Print Gene ID in the desired format and sequence
+                print(f">gi|{gene_id}| {record.description}\n"
+                wrapped_sequence = "\n".join(textwrap.wrap(str(record.seq), 60))
+                print(f"Sequence:\n{wrapped_sequence}\n")
+            except Exception as e:
+                print(f"Error retrieving sequence for Gene ID: {gene_id}: {e}")
+        else:
+            print(f"No results found for Gene ID: {gene_id} in Drosophila melanogaster")
+
+# List of specified gene IDs for Drosophila
+gene_ids_drosophila = [
+    "42689", "41326", "41269", "42586", "43102",
+    "37900", "41360", "42326", "44001", "35590",
+    "41340", "42808", "34414", "42185", "36020",
+    "37131", "31407", "34021"
+]
+
+fetch_and_print_sequences_drosophila(gene_ids_drosophila)
