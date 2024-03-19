@@ -1,0 +1,30 @@
+from Bio import Entrez
+import time
+
+Entrez.email = "eeshan.nair@gmail.com" 
+
+gene_names = [
+    'Dmel_CG3861', 'Dmel_CG14740', 'Dmel_CG8322', 'Dmel_CG9244', 'Dmel_CG4900', 'Dmel_CG4706', 'Dmel_CG6342', 'Dmel_CG7176', 'Dmel_CG6439', 'Dmel_CG5028', 'Dmel_CG3483', 'Dmel_CG32026', 'Dmel_CG12233', 'Dmel_CG33791', 'Dmel_CG11661', 'Dmel_CG5214', 'Dmel_CG7430', 'Dmel_CG6255', 'Dmel_CG1065', 'Dmel_CG10622', 'Dmel_CG11963', 'Dmel_CG17246', 'Dmel_CG5718', 'Dmel_CG3283', 'Dmel_CG7349', 'Dmel_CG6629', 'Dmel_CG6666', 'Dmel_CG10219', 'Dmel_CG4094', 'Dmel_CG6140', 'Dmel_CG31874', 'Dmel_CG4095', 'Dmel_CG5362', 'Dmel_CG10748', 'Dmel_CG10749', 'Dmel_CG7998', 'Dmel_CG1516', 'Dmel_CG10924', 'Dmel_CG17725', 'Dmel_CG7024', 'Dmel_CG7010', 'Dmel_CG11876', 'Dmel_CG5261'
+]
+
+def search_gene_ids(gene_names):
+    gene_ids = {}
+    for gene_name in gene_names:
+        query = f"{gene_name}[Gene Name] AND Drosophila melanogaster[Organism]"
+        try:
+            search_handle = Entrez.esearch(db="gene", term=query, retmax=10)
+            search_results = Entrez.read(search_handle)
+            search_handle.close()
+            if search_results["IdList"]:
+                gene_ids[gene_name] = search_results["IdList"][0]
+            else:
+                gene_ids[gene_name] = "Not Found"
+            time.sleep(0.5)  
+        except Exception as e:
+            print(f"Error retrieving gene ID for {gene_name}: {e}")
+            gene_ids[gene_name] = "Error"
+    return gene_ids
+
+gene_ids = search_gene_ids(gene_names)
+for gene_name, gene_id in gene_ids.items():
+    print(f"{gene_name}: {gene_id}")
